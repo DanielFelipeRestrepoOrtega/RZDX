@@ -1,35 +1,132 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import Navbar from './components/Navbar';
+import ProductList from './components/ProductList';
+import Cart from './components/Cart';
+import './App.css';
+import About from './components/About';
+import Contact from './components/Contact';
 
-function App() {
-  const [count, setCount] = useState(0)
+
+const App = () => {
+  const [view, setView] = useState('home');
+  const [cart, setCart] = useState([]);
+  
+  // Datos de productos
+const products = [
+  {
+    id: 1,
+    name: "Saco de Boxeo",
+    price: 100.0,
+    category: "Boxeo",
+    image:
+      "https://res.cloudinary.com/dvoakblan/image/upload/v1750187355/SacoBox1Metro_vu3azd.png",
+  },
+  {
+    id: 2,
+    name: "Saco de Boxeo 80 cm",
+    price: 90.0,
+    category: "Boxeo",
+    image:
+      "https://res.cloudinary.com/dvoakblan/image/upload/v1750187653/sacoBox80cm_swr4vs.png",
+  },
+  {
+    id: 3,
+    name: "Pavos de Boxeo",
+    price: 120.0,
+    category: "Boxeo",
+    image:
+      "https://res.cloudinary.com/dvoakblan/image/upload/v1750084019/Imagen_de_WhatsApp_2025-06-16_a_las_09.16.58_a80a20ad-removebg-preview_leioat.png",
+  },
+  {
+    id: 4,
+    name: "Guantes mma",
+    price: 130.0,
+    category: "MMA",
+    image:
+      "https://res.cloudinary.com/dvoakblan/image/upload/v1750188186/GuantesMmaLegion_rjzn3w.png",
+  },
+  {
+    id: 5,
+    name: "Guantes de Boxeo",
+    price: 133.0,
+    category: "Boxeo",
+    image:
+      "https://res.cloudinary.com/dvoakblan/image/upload/v1750188186/GuantesBoxLegion_pobuuf.png",
+  },
+  {
+    id: 6,
+    name: "Protector genital",
+    price: 65.9,
+    category: "Boxeo",
+    image:
+      "https://res.cloudinary.com/dvoakblan/image/upload/v1750188186/ProtecGenitalLegion_mchknw.png",
+  },
+];
+
+  // Añadir producto al carrito
+  const addToCart = (product) => {
+    setCart((currentCart) => {
+      const existingProduct = currentCart.find(item => item.id === product.id);
+      
+      if (existingProduct) {
+        return currentCart.map(item =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      
+      return [...currentCart, { ...product, quantity: 1 }];
+    });
+  };
+
+  // Eliminar producto del carrito
+  const removeFromCart = (productId) => {
+    setCart((currentCart) => currentCart.filter(item => item.id !== productId));
+  };
+
+  // Actualizar cantidad de producto
+  const updateQuantity = (productId, newQuantity) => {
+    if (newQuantity < 1) return;
+    
+    setCart((currentCart) =>
+      currentCart.map(item =>
+        item.id === productId
+          ? { ...item, quantity: newQuantity }
+          : item
+      )
+    );
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="app">
+      <Navbar 
+        cartItems={cart.length} 
+        onHomeClick={() => setView('home')} 
+        onCartClick={() => setView('cart')}
+      />
+      
+      <main className="main-content">
+        {view === 'home' ? (
+          <>
+            <h1 className="main-title">Productos Destacados</h1>
+            <ProductList products={products} addToCart={addToCart} />
+          </>
+        ) : (
+          <Cart 
+            cartItems={cart} 
+            removeFromCart={removeFromCart} 
+            updateQuantity={updateQuantity}
+            onContinueShopping={() => setView('home')}
+          />
+        )}
 
-export default App
+      </main>
+      <About /> 
+       <Contact />
+          
+    </div>
+  );
+};
+
+export default App;
